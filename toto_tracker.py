@@ -1,6 +1,7 @@
 import requests
 import json
 import sys
+import os
 import pickle
 
 class bcolors:
@@ -99,6 +100,7 @@ def main():
 			ref = pickle.load(open("ref.p", "rb"))
 			compare(j["odds"], ref)
 		except IOError:
+			os.system("touch ref.p")
 			with open("ref.p", "wb") as file:
 				pickle.dump(j["odds"], file)
 				print("No previous reference data.\nFresh data saved as reference data.")
