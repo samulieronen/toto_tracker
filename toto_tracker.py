@@ -32,15 +32,14 @@ def compare(data, ref_data):
 		index += 1
 
 def validate_creds(usr, pwd, email):
-	if usr or pwd or email is None:
-		if len(usr) == 0:
-			print(bcolors.FAIL + "ERROR:\n" + bcolors.ENDC + "\tPlease add your Veikkaus account username to the credentials file.\n")
-			sys.exit()
-		elif len(pwd) == 0:
-			print(bcolors.FAIL + "ERROR:\n" + bcolors.ENDC + "\tPlease add your Veikkaus account password to the credentials file.\n")
-			sys.exit()
-		elif len(email) == 0:
-			print(bcolors.WARNING + "Remember to add your email address to the credentials file.\n" + bcolors.ENDC)
+	if len(usr) == 0:
+		print(bcolors.FAIL + "ERROR:\n" + bcolors.ENDC + "\tPlease add your Veikkaus account username to the credentials file.\n")
+		sys.exit()
+	if len(pwd) == 0:
+		print(bcolors.FAIL + "ERROR:\n" + bcolors.ENDC + "\tPlease add your Veikkaus account password to the credentials file.\n")
+		sys.exit()
+	if len(email) == 0:
+		print(bcolors.WARNING + "Remember to add your email address to the credentials file.\n" + bcolors.ENDC)
 	return usr, pwd, email
 
 def read_credentials():
