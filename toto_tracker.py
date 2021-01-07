@@ -27,7 +27,8 @@ def compare(data, ref_data):
 			print(bcolors.OKGREEN + "Value change: " + str(value) + " : Percentage change: " + str(perc_value) + "\n" + bcolors.ENDC)
 		elif perc_value < -20:
 			print(bcolors.WARNING + "Value change: " + str(value) + " : Percentage change: " + str(perc_value) + "\n" + bcolors.ENDC)
-		print("Value change: " + str(value) + " : Percentage change: " + str(perc_value) + "\n")
+		else:
+			print("Value change: " + str(value) + " : Percentage change: " + str(perc_value) + "\n")
 		index += 1
 
 def validate_creds(usr, pwd, email):
