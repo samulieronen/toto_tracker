@@ -9,6 +9,9 @@ class bcolors:
 	WARNING = '\033[93m'
 	FAIL = '\033[91m'
 
+class triggers:
+	RISE = 30
+	LOW = -15
 
 def compare(data, ref_data):
 	new = []
@@ -20,17 +23,20 @@ def compare(data, ref_data):
 		ref_item["percentage"] /= 100
 		ref.append(ref_item["percentage"])
 	index = 0
+	legnb = 0
 	for i in data:
-		print(i)
-		value = new[index] - ref[index]
+		if i["legNumber"] is not legnb:
+			legnb = i["legNumber"]
+			print("\nLEG {legnb}\n\n".format(legnb = str(legnb)))
 		increase = (new[index] - ref[index])
 		perc_value = increase / ref[index] * 100
-		if perc_value > 20:
-			print(bcolors.OKGREEN + "Ref Value: {reference} -- New Value: {fresh} -- Percentage change: {percentage:.2f}%\n".format(reference = ref[index], fresh = new[index], percentage = perc_value) + bcolors.ENDC)
-		elif perc_value < -20:
-			print(bcolors.WARNING + "Ref Value: {reference} -- New Value: {fresh} -- Percentage change: {percentage:.2f}%\n".format(reference = ref[index], fresh = new[index], percentage = perc_value) + bcolors.ENDC)
+		print("Leg: {leggnb} --- Race: {racenb} --- Runner Number: {runnb} --- RaceID: {raceid}".format(leggnb = str(i["legNumber"]), racenb = str(i["raceNumber"]), runnb = str(i["runnerNumber"]), raceid = str(i["raceId"])))
+		if perc_value > triggers.RISE:
+			print(bcolors.OKGREEN + "RISING!\nRef Value: {reference}\nNew Value: {fresh}\nPercentage change: {percentage:.2f}%\n".format(reference = ref[index], fresh = new[index], percentage = perc_value) + bcolors.ENDC)
+		elif perc_value < triggers.LOW:
+			print(bcolors.WARNING + "FALLING!\nRef Value: {reference}\nNew Value: {fresh}\nPercentage change: {percentage:.2f}%\n".format(reference = ref[index], fresh = new[index], percentage = perc_value) + bcolors.ENDC)
 		else:
-			print("Ref Value: {reference} -- New Value: {fresh} -- Percentage change: {percentage:.2f}%\n".format(reference = ref[index], fresh = new[index], percentage = perc_value))
+			print("Ref Value: {reference}\nNew Value: {fresh}\nPercentage change: {percentage:.2f}%\n".format(reference = ref[index], fresh = new[index], percentage = perc_value))
 		index += 1
 
 def validate_creds(usr, pwd, email):
@@ -70,10 +76,11 @@ def login(usr, pwd):
 	login_req = {"type":"STANDARD_LOGIN","login":usr,"password":pwd}
 	r = sesh.post(url("api/bff/v1/sessions"), data = json.dumps(login_req), headers = headers)
 	if r.status_code == 200:
-		print("Login successful")
+		print("Login successful.")
 		return sesh
 	else:
-		print("Login failed: Status code: " + str(r.status_code))
+		print("Login failed with status code: " + str(r.status_code))
+		sesh.close()
 		sys.exit()
 
 def main():
@@ -84,7 +91,10 @@ def main():
 		if res.status_code == 200:
 			j = res.json()
 		else:
-			print("Data fetch unsuccessful. Status code: " + str(res.status_code))
+			print(bcolors.FAIL + "ERROR:\n" + bcolors.ENDC + "\tData fetch unsuccessful with status code: " + str(res.status_code))
+			sesh.close()
+			print("Session closed successfully.")
+			sys.exit()
 		try:
 			ref = pickle.load(open("ref.p", "rb"))
 			compare(j["odds"], ref)
@@ -97,6 +107,7 @@ def main():
 			print("\nSession closed successfully")
 		else:
 			print("\nError: No session object!")
+			sys.exit()
 	except KeyboardInterrupt:
 		if sesh is not None:
 			sesh.close()
