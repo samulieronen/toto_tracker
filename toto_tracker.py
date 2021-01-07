@@ -14,8 +14,10 @@ def compare(data, ref_data):
 	new = []
 	ref = []
 	for item in data:
+		item["percentage"] /= 100
 		new.append(item["percentage"])
 	for ref_item in ref_data:
+		ref_item["percentage"] /= 100
 		ref.append(ref_item["percentage"])
 	index = 0
 	for i in data:
@@ -24,11 +26,11 @@ def compare(data, ref_data):
 		increase = (new[index] - ref[index])
 		perc_value = increase / ref[index] * 100
 		if perc_value > 20:
-			print(bcolors.OKGREEN + "Value change: " + str(value) + " : Percentage change: " + str(perc_value) + "\n" + bcolors.ENDC)
+			print(bcolors.OKGREEN + "Ref Value: {reference} -- New Value: {fresh} -- Percentage change: {percentage:.2f}%\n".format(reference = ref[index], fresh = new[index], percentage = perc_value) + bcolors.ENDC)
 		elif perc_value < -20:
-			print(bcolors.WARNING + "Value change: " + str(value) + " : Percentage change: " + str(perc_value) + "\n" + bcolors.ENDC)
+			print(bcolors.WARNING + "Ref Value: {reference} -- New Value: {fresh} -- Percentage change: {percentage:.2f}%\n".format(reference = ref[index], fresh = new[index], percentage = perc_value) + bcolors.ENDC)
 		else:
-			print("Value change: " + str(value) + " : Percentage change: " + str(perc_value) + "\n")
+			print("Ref Value: {reference} -- New Value: {fresh} -- Percentage change: {percentage:.2f}%\n".format(reference = ref[index], fresh = new[index], percentage = perc_value))
 		index += 1
 
 def validate_creds(usr, pwd, email):
@@ -75,27 +77,29 @@ def login(usr, pwd):
 		sys.exit()
 
 def main():
-	usr, pwd, email = read_credentials()
-	#sys.exit()
-	sesh = login(usr, pwd)
-	#res = sesh.get(url("/api/toto-info/v1/cards/date/2021-01-07"))
-	res = sesh.get(url("/api/toto-info/v1/pool/7758309/odds"))
-	if res.status_code == 200:
-		j = res.json()
-	else:
-		print("Data fetch unsuccessful. Status code: " + str(res.status_code))
 	try:
-		ref = pickle.load(open("ref.p", "rb"))
-		compare(j["odds"], ref)
-	except IOError:
-		with open("ref.p", "wb") as file:
-			pickle.dump(j["odds"], file)
-			print("No previous reference data.\nFresh data saved as reference data.")
-	if sesh:
-		sesh.close()
-		print("\nSession closed successfully")
-	else:
-		print("\nError: No session object!")
+		usr, pwd, email = read_credentials()
+		sesh = login(usr, pwd)
+		res = sesh.get(url("/api/toto-info/v1/pool/7758309/odds"))
+		if res.status_code == 200:
+			j = res.json()
+		else:
+			print("Data fetch unsuccessful. Status code: " + str(res.status_code))
+		try:
+			ref = pickle.load(open("ref.p", "rb"))
+			compare(j["odds"], ref)
+		except IOError:
+			with open("ref.p", "wb") as file:
+				pickle.dump(j["odds"], file)
+				print("No previous reference data.\nFresh data saved as reference data.")
+		if sesh:
+			sesh.close()
+			print("\nSession closed successfully")
+		else:
+			print("\nError: No session object!")
+	except KeyboardInterrupt:
+		if sesh is not None:
+			sesh.close()
 
 main()
 
