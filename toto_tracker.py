@@ -116,22 +116,21 @@ def print_races(item):
 	country = item["country"]
 	cancelled = item["cancelled"]
 	racenumber = item["currentRaceNumber"]
-	try:
-		toto_pools = item["totoPools"]
-		for pool in toto_pools:
-			if pool in bet.types:
-				print(f"\nFound a race with racenumber {racenumber} in {name},{country} with Card ID: {bcolors.OKGREEN}{id}{bcolors.ENDC}")
-				pools = "Toto Pools: "
-				for i in toto_pools:
-					pools += "TOTO "
-					pools += i[1:]
-					pools += ", "
-				print(pools[:-2])
-				if cancelled is not False:
-					print(f"{bcolors.FAIL}WARNING:{bcolors.ENDC} This race has been cancelled!")
-				break
-	except KeyError:
-		return
+	if cancelled is False:
+		try:
+			toto_pools = item["totoPools"]
+			for pool in toto_pools:
+				if pool in bet.types:
+					print(f"\nFound a race with racenumber {racenumber} in {name},{country} with Card ID:" + f"{bcolors.OKGREEN}{id}{bcolors.ENDC}")
+					pools = "Toto Pools: "
+					for i in toto_pools:
+						pools += "TOTO "
+						pools += i[1:]
+						pools += ", "
+					print(pools[:-2])
+					break
+		except KeyError:
+			return None
 	
 
 def fetch_races(sesh):
