@@ -118,22 +118,24 @@ def print_races(item):
 	racenumber = item["currentRaceNumber"]
 	try:
 		toto_pools = item["totoPools"]
+		for pool in toto_pools:
+			if pool in bet.types:
+				print(f"\nFound a race with racenumber {racenumber} in {name},{country} with Card ID: {bcolors.OKGREEN}{id}{bcolors.ENDC}")
+				pools = "Toto Pools: "
+				for i in toto_pools:
+					pools += "TOTO "
+					pools += i[1:]
+					pools += ", "
+				print(pools[:-2])
+				if cancelled is not False:
+					print(f"{bcolors.FAIL}WARNING:{bcolors.ENDC} This race has been cancelled!")
+				break
 	except KeyError:
-		toto_pools = None
-	print(f"\nFound a race with racenumber {racenumber} in {name},{country} with Card ID: {bcolors.OKGREEN}{id}{bcolors.ENDC}")
-	if toto_pools is not None:
-		pools = "Toto Pools: "
-		for i in toto_pools:
-			pools += "TOTO "
-			pools += i[1:]
-			pools += ", "
-		print(pools[:-2])
-	if cancelled is not False:
-		print(f"{bcolors.FAIL}WARNING:{bcolors.ENDC} This race has been cancelled!")
+		return
 	
 
 def fetch_races(sesh):
-	res = sesh.get(url("/api/toto-info/v1/cards/date/today"))
+	res = sesh.get(url("/api/toto-info/v1/cards/today"))
 	if res.status_code == 200:
 		j = res.json()
 		for i in j["collection"]:
@@ -183,7 +185,6 @@ def main():
 		sesh = login(usr, pwd)
 		if mod == True:
 			fetch_races(sesh)
-			sys.exit()
 		race_id = sys.argv[2]
 		pools = fetch_pools(sesh, race_id)
 		for id in pools:
