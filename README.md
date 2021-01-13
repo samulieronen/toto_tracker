@@ -8,6 +8,8 @@ You can fetch todays races with '-r' -flag or '--races'<br>
 
 You can then fetch all playable items in a specific race using '-id race-id-number'. f.ex. -id 123456.<br>
 
+![how-to-gif](assets/how_to.gif)
+
 TODO:<br>
 Multiple tracking targets.<br>
 Webapp maybe with Flask? Gonna need a backend.<br>
